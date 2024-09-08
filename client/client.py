@@ -17,12 +17,14 @@ class Client(ABCClient):
         self.builder = DummyJsonQueryBuilder(base_url)
 
     def _apply_handlers(self, request: dict) -> str:
+        """Check validation handlers for request"""
         handler_types = list(self.handlers.keys())
         for i in range(len(handler_types) - 1):
             self.handlers[handler_types[i]].successor = self.handlers[handler_types[i + 1]]
             self.handlers[handler_types[i]].handle(request)
 
     def send_request_data(self, request: dict) -> None:
+        """Send post request"""
         self._apply_handlers(request)
         try:
             response = requests.post(self.base_url, json=json.dumps(request), timeout=5)
@@ -32,6 +34,7 @@ class Client(ABCClient):
             raise RequestTimeoutException
 
     def get_request_data(self, id: int) -> BaseSchema:
+        """Get request data"""
         try:
             response = requests.get(f"{self.base_url}/{id}", timeout=5)
         except requests.exceptions.Timeout:
@@ -42,6 +45,7 @@ class Client(ABCClient):
             raise RequestGetException
 
     def list_request_data(self, *args, **kwargs) -> list[BaseSchema]:
+        """List request data"""
         try:
             response = requests.get(self.builder.create_request_url(**kwargs), timeout=5)
         except requests.exceptions.Timeout:

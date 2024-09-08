@@ -11,17 +11,21 @@ class MockClient(ABCClient):
         self.request_data = get_recipe_data()
 
     def _apply_handlers(self, request: dict) -> str:
+        """Check validation handlers for request"""
         handler_types = list(self.handlers.keys())
         for i in range(len(handler_types) - 1):
             self.handlers[handler_types[i]].successor = self.handlers[handler_types[i + 1]]
             self.handlers[handler_types[i]].handle(request)
 
     def send_request_data(self) -> None:
+        """Mock post request"""
         self._apply_handlers(self.request_data)
         print("Request sent")
 
     def get_request_data(self) -> BaseSchema:
+        """Mock get request data"""
         return self.data_schema(**self.request_data)
 
     def list_request_data(self) -> list[BaseSchema]:
+        """List request data"""
         return [self.data_schema(**self.request_data)]

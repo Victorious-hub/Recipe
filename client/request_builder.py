@@ -14,10 +14,12 @@ class DummyJsonQueryBuilder:
         return f"{self.client_base_url}{base_separator}{query}"
 
     def get_search_query(self, search: str) -> str:
+        """Set search query param"""
         request_query = f"{QueryBuilderParams.SEARCH.value}?q={search}"
         return self._build_query(request_query, "/")
 
     def get_sort_query(self, sortBy: str, order: str | None) -> str:
+        """Set sort query params"""
         if order not in QueryBuilderParams.SORT_ORDERING.value:
             raise SortQueryException
 
@@ -25,18 +27,22 @@ class DummyJsonQueryBuilder:
         return self._build_query(request_query, "?")
 
     def get_limit_query(self, limit: int) -> str:
+        """Set limit query param"""
         request_query = f"{QueryBuilderParams.LIMIT.value}={limit}"
         return self._build_query(request_query, "?")
 
     def get_skip_query(self, skip: int) -> str:
+        """Set skip query param"""
         request_query = f"{QueryBuilderParams.SKIP.value}={skip}"
         return self._build_query(request_query, "?")
 
     def get_select_query(self, select: str) -> str:
+        """Set select query param"""
         request_query = f"{QueryBuilderParams.SELECT.value}={select}"
         return self._build_query(request_query, "?")
 
     def get_filter_query(self, **kwargs) -> str:
+        """Set filter query params"""
         filters = FilterQuery.get_filters()
         query_parts = None
 
@@ -47,7 +53,7 @@ class DummyJsonQueryBuilder:
                     query_parts = self._build_query(query, "/")
         return query_parts
 
-    def create_request_url(self, *args, **kwargs):
+    def create_request_url(self, *args, **kwargs) -> str:
         query_methods = {
             LimitSkipQuery.LIMIT.value: (self.get_limit_query, [LimitSkipQuery.LIMIT.value]),
             LimitSkipQuery.SKIP.value: (self.get_skip_query, [LimitSkipQuery.SKIP.value]),
