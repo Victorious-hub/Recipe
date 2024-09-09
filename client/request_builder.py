@@ -1,6 +1,11 @@
-from enum import Enum
-from config.enums import FilterQuery, LimitSkipQuery, QueryBuilderParams, SearchQuery, SortQuery
-from config.exceptions import SortQueryException
+from core.enums import (
+    QueryBuilderFilter,
+    QueryBuilderLimitSkip,
+    QueryBuilderSearch,
+    QueryBuilderSelect,
+    QueryBuilderSort,
+)
+from core.exceptions import SortQueryException
 
 
 class DummyJsonQueryBuilder:
@@ -9,58 +14,63 @@ class DummyJsonQueryBuilder:
         self.base_request = self.client_base_url
 
     def _build_query(self, query: str, base_separator: str) -> str:
+        """Build query"""
         if self.base_request != self.client_base_url:
             return f"{self.base_request}&{query}"
         return f"{self.client_base_url}{base_separator}{query}"
 
     def get_search_query(self, search: str) -> str:
         """Set search query param"""
-        request_query = f"{QueryBuilderParams.SEARCH.value}?q={search}"
+        request_query = f"{QueryBuilderSearch.SEARCH.value}?q={search}"
         return self._build_query(request_query, "/")
 
     def get_sort_query(self, sortBy: str, order: str | None) -> str:
         """Set sort query params"""
-        if order not in QueryBuilderParams.SORT_ORDERING.value:
+        if order not in QueryBuilderSort.SORT_ORDERING.value:
             raise SortQueryException
 
-        request_query = f"{QueryBuilderParams.SORT_BY.value}={sortBy}&{QueryBuilderParams.ORDER.value}={order}"
+        request_query = f"{QueryBuilderSort.SORT.value}={sortBy}&{QueryBuilderSort.ORDER.value}={order}"
         return self._build_query(request_query, "?")
 
     def get_limit_query(self, limit: int) -> str:
         """Set limit query param"""
-        request_query = f"{QueryBuilderParams.LIMIT.value}={limit}"
+        request_query = f"{QueryBuilderLimitSkip.LIMIT.value}={limit}"
         return self._build_query(request_query, "?")
 
     def get_skip_query(self, skip: int) -> str:
         """Set skip query param"""
-        request_query = f"{QueryBuilderParams.SKIP.value}={skip}"
+        request_query = f"{QueryBuilderLimitSkip.SKIP.value}={skip}"
         return self._build_query(request_query, "?")
 
     def get_select_query(self, select: str) -> str:
         """Set select query param"""
-        request_query = f"{QueryBuilderParams.SELECT.value}={select}"
+        request_query = f"{QueryBuilderSelect.SELECT.value}={select}"
         return self._build_query(request_query, "?")
 
     def get_filter_query(self, **kwargs) -> str:
         """Set filter query params"""
-        filters = FilterQuery.get_filters()
+        filters = QueryBuilderFilter.get_filters()
         query_parts = None
 
         for value_filter in filters:
             if value_filter in kwargs:
-                query = f"{filter}={kwargs[filter]}"
+                query = f"{value_filter}/{kwargs[value_filter]}"
                 if query not in self.base_request:
                     query_parts = self._build_query(query, "/")
         return query_parts
 
     def create_request_url(self, *args, **kwargs) -> str:
+        """Create request url"""
         query_methods = {
-            LimitSkipQuery.LIMIT.value: (self.get_limit_query, [LimitSkipQuery.LIMIT.value]),
-            LimitSkipQuery.SKIP.value: (self.get_skip_query, [LimitSkipQuery.SKIP.value]),
-            SearchQuery.SEARCH.value: (self.get_search_query, [SearchQuery.SEARCH.value]),
-            SortQuery.SORT.value: (self.get_sort_query, [SortQuery.SORT.value, SortQuery.ORDER.value]),
-            FilterQuery.TAG.value: (self.get_filter_query, FilterQuery.get_filters()),
-            FilterQuery.TAGS.value: (self.get_filter_query, FilterQuery.get_filters()),
+            QueryBuilderLimitSkip.LIMIT.value: (self.get_limit_query, [QueryBuilderLimitSkip.LIMIT.value]),
+            QueryBuilderLimitSkip.SKIP.value: (self.get_skip_query, [QueryBuilderLimitSkip.SKIP.value]),
+            QueryBuilderSearch.SEARCH.value: (self.get_search_query, [QueryBuilderSearch.SEARCH.value]),
+            QueryBuilderSort.SORT.value: (
+                self.get_sort_query,
+                [QueryBuilderSort.SORT.value, QueryBuilderSort.ORDER.value],
+            ),
+            QueryBuilderFilter.TAG.value: (self.get_filter_query, QueryBuilderFilter.get_filters()),
+            QueryBuilderSelect.SELECT.value: (self.get_select_query, [QueryBuilderSelect.SELECT.value]),
         }
 
         for key, _ in query_methods.items():

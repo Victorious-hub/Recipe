@@ -1,14 +1,14 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from config.exceptions import CookingTimeHandlerException, UserIdFieldHandlerException
+from core.exceptions import CookingTimeHandlerException, UserIdFieldHandlerException
 
 
-class Handler(ABC):
-    def __init__(self, successor: Optional["Handler"] = None) -> None:
+class BaseRequestHandler(ABC):
+    def __init__(self, successor: Optional["BaseRequestHandler"] = None) -> None:
         self.successor = successor
 
-    def handle(self, request: int) -> None:
+    def handle(self, request: dict) -> None:
         res = self.handle_request(request)
         if not res and self.successor:
             self.successor.handle(request)
@@ -18,7 +18,7 @@ class Handler(ABC):
         raise NotImplementedError
 
 
-class UserIdFieldHandler(Handler):
+class UserIdFieldHandler(BaseRequestHandler):
     @staticmethod
     def handle_request(request: dict) -> Optional[bool]:
         """Check if userId field is provided"""
@@ -26,7 +26,7 @@ class UserIdFieldHandler(Handler):
             raise UserIdFieldHandlerException
 
 
-class CookingTimeHandler(Handler):
+class CookingTimeHandler(BaseRequestHandler):
     @staticmethod
     def handle_request(request: dict) -> Optional[bool]:
         """Check if prepTimeMinutes field is provided"""
