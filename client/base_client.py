@@ -1,14 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
-
-from schemas.base_schema import BaseSchema
-
-T = TypeVar("T", bound=BaseSchema)
 
 
-class ABCClient(ABC, Generic[T]):
+class ABCClient(ABC):
     @abstractmethod
-    def list_request_data(self, *args, **kwargs) -> list[T]:
+    def fetch_list_request_data(self, *args, **kwargs) -> list[dict]:
         raise NotImplementedError
 
     @abstractmethod
@@ -16,5 +11,9 @@ class ABCClient(ABC, Generic[T]):
         raise NotImplementedError
 
     @abstractmethod
-    def get_request_data(self, id: int) -> T:
+    def fetch_request_data(self, id: int) -> dict:
+        raise NotImplementedError
+
+    @abstractmethod
+    def _apply_request_handlers(self, request: dict) -> None:
         raise NotImplementedError

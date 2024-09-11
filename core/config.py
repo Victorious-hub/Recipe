@@ -13,11 +13,13 @@ load_dotenv(dotenv_path=env_path)
 
 class ClientSettings(BaseModel):
     """Client settings"""
+
     RECIPES_API_MOCK: bool
 
 
 class Settings(BaseSettings):
     """Settings class"""
+
     CLIENT: ClientSettings
     model_config = SettingsConfigDict(env_file=".env", env_nested_delimiter="__")
 

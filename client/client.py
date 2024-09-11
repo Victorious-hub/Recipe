@@ -1,19 +1,17 @@
 import json
-from typing import Generic
 
 import requests
 
-from client.base_client import ABCClient, T
+from client.base_client import ABCClient
 from core.enums import HandlerType
-from core.handlers import BaseRequestHandler
+from core.handlers import DataFieldHandler
 from core.exceptions import RequestGetException, RequestPostException, RequestTimeoutException
 from client.request_builder import DummyJsonQueryBuilder
 
 
-class Client(ABCClient[T], Generic[T]):
-    def __init__(self, base_url: str, handlers: dict[HandlerType, BaseRequestHandler], data_schema: T) -> None:
+class Client(ABCClient):
+    def __init__(self, base_url: str, handlers: dict[HandlerType, DataFieldHandler]) -> None:
         self.base_url = base_url
-        self.data_schema = data_schema
         self.handlers = handlers
         self.builder = DummyJsonQueryBuilder(base_url)
 
@@ -34,23 +32,23 @@ class Client(ABCClient[T], Generic[T]):
         except requests.exceptions.Timeout:
             raise RequestTimeoutException
 
-    def get_request_data(self, id: int) -> T:
+    def fetch_request_data(self, id: int) -> dict:
         """Get request data"""
         try:
             response = requests.get(f"{self.base_url}/{id}", timeout=5)
             if response.status_code == 200:
-                return self.data_schema(**response.json())
+                return response.json()
             raise RequestGetException
         except requests.exceptions.Timeout:
             raise RequestTimeoutException
 
-    def list_request_data(self, *args, **kwargs) -> list[T]:
+    def fetch_list_request_data(self, *args, **kwargs) -> list[dict]:
         """List request data"""
         try:
-            response = requests.get(self.builder.create_request_url(**kwargs), timeout=5)
-            result_response = response.json()[self.base_url.split("/")[-1]]
+            response = requests.get(self.builder._create_request_url(**kwargs), timeout=5)
+            result_list_response = response.json()[self.base_url.split("/")[-1]]
             if response.status_code == 200:
-                return [self.data_schema(**result) for result in result_response]
+                return result_list_response
             raise RequestGetException
         except requests.exceptions.Timeout:
             raise RequestTimeoutException

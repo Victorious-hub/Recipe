@@ -1,11 +1,11 @@
 
 from typing import Optional
-from pydantic import BaseModel
 
 from core.enums import QueryBuilderSort
+from schemas.base_schema import BaseSchema
 
 
-class QueryParamsApiSchema(BaseModel):
+class QueryParamsApiSchema(BaseSchema):
     limit: Optional[int] = None
     skip: Optional[int] = None
     sortBy: Optional[str] = None

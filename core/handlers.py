@@ -4,31 +4,31 @@ from typing import Optional
 from core.exceptions import CookingTimeHandlerException, UserIdFieldHandlerException
 
 
-class BaseRequestHandler(ABC):
-    def __init__(self, successor: Optional["BaseRequestHandler"] = None) -> None:
+class DataFieldHandler(ABC):
+    def __init__(self, successor: Optional["DataFieldHandler"] = None) -> None:
         self.successor = successor
 
     def handle(self, request: dict) -> None:
-        res = self.handle_request(request)
+        res = self.handle_data_field(request)
         if not res and self.successor:
             self.successor.handle(request)
 
     @abstractmethod
-    def handle_request(self, request: int) -> Optional[bool]:
+    def handle_data_field(self, request: int) -> Optional[bool]:
         raise NotImplementedError
 
 
-class UserIdFieldHandler(BaseRequestHandler):
+class UserIdFieldHandler(DataFieldHandler):
     @staticmethod
-    def handle_request(request: dict) -> Optional[bool]:
+    def handle_data_field(request: dict) -> Optional[bool]:
         """Check if userId field is provided"""
         if request.get("userId") is None and request.get("name") is not None:
             raise UserIdFieldHandlerException
 
 
-class CookingTimeHandler(BaseRequestHandler):
+class CookingTimeHandler(DataFieldHandler):
     @staticmethod
-    def handle_request(request: dict) -> Optional[bool]:
+    def handle_data_field(request: dict) -> Optional[bool]:
         """Check if prepTimeMinutes field is provided"""
         if request.get("prepTimeMinutes") is None and request.get("cookTimeMinutes") is not None:
             raise CookingTimeHandlerException
