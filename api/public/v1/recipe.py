@@ -1,5 +1,5 @@
 from client.client import Client
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, Depends, status
 from api.dependencies import Container
 from dependency_injector.wiring import Provide, inject
 from schemas.api_query_schema import RecipeQueryParamsApiSchema
@@ -19,10 +19,12 @@ async def get_recipe(
     client: Client = Depends(Provide[Container.client]),
 ) -> RecipeSchema:
     """Get recipe api"""
-    return RecipeSchema(**client.fetch_request_data(id))
+    return RecipeSchema(**client.fetch_data(id))
 
 
-@recipe_router.get("/", response_model=list[RecipeSchema], response_model_exclude_none=True, status_code=status.HTTP_200_OK)
+@recipe_router.get(
+    "/", response_model=list[RecipeSchema], response_model_exclude_none=True, status_code=status.HTTP_200_OK
+)
 @inject
 async def list_recipes(
     query_params: RecipeQueryParamsApiSchema = Depends(),
@@ -30,7 +32,7 @@ async def list_recipes(
 ) -> RecipeSchema:
     """List recipes api"""
     params = {k: v for k, v in query_params.dict().items() if v is not None}
-    recipe_list = client.fetch_list_request_data(**params)
+    recipe_list = client.fetch_list_data(**params)
     return [RecipeSchema(**recipe) for recipe in recipe_list]
 
 

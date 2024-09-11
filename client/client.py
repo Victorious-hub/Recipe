@@ -11,16 +11,9 @@ from client.request_builder import DummyJsonQueryBuilder
 
 class Client(ABCClient):
     def __init__(self, base_url: str, handlers: dict[HandlerType, DataFieldHandler]) -> None:
+        super().__init__(handlers)
         self.base_url = base_url
-        self.handlers = handlers
         self.builder = DummyJsonQueryBuilder(base_url)
-
-    def _apply_request_handlers(self, request: dict) -> None:
-        """Check validation handlers for request"""
-        handler_types = list(self.handlers.keys())
-        for i in range(len(handler_types) - 1):
-            self.handlers[handler_types[i]].successor = self.handlers[handler_types[i + 1]]
-            self.handlers[handler_types[i]].handle(request)
 
     def send_request_data(self, request: dict) -> None:
         """Send post request"""
@@ -32,7 +25,7 @@ class Client(ABCClient):
         except requests.exceptions.Timeout:
             raise RequestTimeoutException
 
-    def fetch_request_data(self, id: int) -> dict:
+    def fetch_data(self, id: int) -> dict:
         """Fetch request data"""
         try:
             response = requests.get(f"{self.base_url}/{id}", timeout=5)
@@ -42,7 +35,7 @@ class Client(ABCClient):
         except requests.exceptions.Timeout:
             raise RequestTimeoutException
 
-    def fetch_list_request_data(self, *args, **kwargs) -> list[dict]:
+    def fetch_list_data(self, *args, **kwargs) -> list[dict]:
         """Fetch List request data"""
         try:
             response = requests.get(self.builder.create_request_url(**kwargs), timeout=5)
