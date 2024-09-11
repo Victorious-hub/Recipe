@@ -45,7 +45,7 @@ class Client(ABCClient):
     def fetch_list_request_data(self, *args, **kwargs) -> list[dict]:
         """Fetch List request data"""
         try:
-            response = requests.get(self.builder._create_request_url(**kwargs), timeout=5)
+            response = requests.get(self.builder.create_request_url(**kwargs), timeout=5)
             result_list_response = response.json()[self.base_url.split("/")[-1]]
             if response.status_code == 200:
                 return result_list_response

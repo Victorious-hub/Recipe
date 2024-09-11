@@ -59,7 +59,7 @@ class DummyJsonQueryBuilder:
                     query_parts = self._build_query(query, "/")
         return query_parts
 
-    def _create_request_url(self, *args, **kwargs) -> str:
+    def create_request_url(self, *args, **kwargs) -> str:
         """Create request url"""
         query_methods = {
             QueryBuilderLimitSkip.LIMIT.value: (self._get_limit_query, [QueryBuilderLimitSkip.LIMIT.value]),
