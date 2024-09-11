@@ -9,7 +9,7 @@ def create_application():
     """Create and configure the FastAPI application."""
     container = Container()
     application = FastAPI(docs_url="/api/docs")
-    if settings.CLIENT.RECIPES_API_MOCK:
+    if settings.CLIENT.RECIPES_API_MOCK is True:
         container.client.override(container.mock_client)
     container.wire(modules=[recipe])
     application.include_router(api_router_v1)

@@ -32,6 +32,6 @@ class MockClient(ABCClient):
         """Mock get request data"""
         return self.request_data
 
-    def fetch_list_request_data(self) -> list[dict]:
+    def fetch_list_request_data(self, *args, **kwargs) -> list[dict]:
         """List request data"""
         return self.request_list_data
