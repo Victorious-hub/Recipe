@@ -33,7 +33,7 @@ class Client(ABCClient):
             raise RequestTimeoutException
 
     def fetch_request_data(self, id: int) -> dict:
-        """Get request data"""
+        """Fetch request data"""
         try:
             response = requests.get(f"{self.base_url}/{id}", timeout=5)
             if response.status_code == 200:
@@ -43,7 +43,7 @@ class Client(ABCClient):
             raise RequestTimeoutException
 
     def fetch_list_request_data(self, *args, **kwargs) -> list[dict]:
-        """List request data"""
+        """Fetch List request data"""
         try:
             response = requests.get(self.builder._create_request_url(**kwargs), timeout=5)
             result_list_response = response.json()[self.base_url.split("/")[-1]]
